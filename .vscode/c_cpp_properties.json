@@ -1,0 +1,23 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:/Users/Arjun/AppData/Local/Arduino15/packages/arduino/hardware/avr/*/cores/arduino",
+                "C:/Users/Arjun/AppData/Local/Arduino15/packages/arduino/hardware/avr/*/libraries/**",
+                "C:/Users/Arjun/Documents/Arduino/libraries/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "C:\\Users\\Arjun\\OneDrive\\Desktop\\C++ install\\ucrt64\\bin\\gcc.exe",
+            "cStandard": "c17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "windows-gcc-x64"
+        }
+    ],
+    "version": 4
+}
