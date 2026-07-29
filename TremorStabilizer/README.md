@@ -1,3 +1,3 @@
-Code for the ISOGlide pen, code including Arduino Open Source code for the MUP6050
-MPU6050 - Input Code
+Code for the ISOGlide pen using the Nano 33 BLE Sense Rev2 built-in accelerometer.
+Built-in IMU - Input Code
 Actuators - Output Code (For Counteractive movement)

@@ -1,102 +1,69 @@
-#include <Wire.h>
-#include <MPU6050.h>
-#include <Adafruit_DRV2605.h>
+#include <Arduino_BMI270_BMM150.h>
+#include "DRV8833.h"
 
-MPU6050 mpu;
-Adafruit_DRV2605 drv;
+BMI270_BMM150 imu;
+DRV8833 drv(5, 6); // Replace with your DRV8833 motor control pins
 
-int16_t ax;
-int16_t ay;
-int16_t az;
+float ax;
+float ay;
+float az;
 
-int16_t gx;
-int16_t gy;
-int16_t gz;
+float filteredMotion = 0.0f;
+const float alpha = 0.15f;
 
-float filteredMotion = 0;
-const float alpha = 0.15;
-
-void setup(){
+void setup() {
   Serial.begin(115200);
-  Wire.begin();
-  Serial.println("Initializing MPU6050");
-  mpu.initialize();
 
-  if(!mpu.testConnection()){
-    Serial.println("MPU6050 connection failed");
-    while(1);
+  if (!imu.begin()) {
+    Serial.println("IMU initialization failed");
+    while (1);
   }
 
-  Serial.println("MPU6050 Connected")
+  Serial.println("Built-in IMU initialized");
 
-  if(!drv.begin()){
-    Serial.println("DRV2605L not detected");
-    while(1);
-  }
+  drv.begin();
+  drv.setSpeed(0);
 
-  drv.selectLibrary(1);
-  drv.useLRA();
-
-  drv.setMode(DRV2605_MODE_REALTIME);
-
-  drv.setRealtimeValue(0);
-
-  Serial.println("DRV2605L Ready");
+  Serial.println("DRV8833 Ready");
   Serial.println("System Ready");
 }
 
-void loop(){
-  mpy.getMotion6(
-    &ax,
-    &ay,
-    &az,
-    &gx,
-    &gy,
-    &gz
-  );
+void loop() {
+  if (imu.accelerationAvailable()) {
+    imu.readAcceleration(ax, ay, az);
 
-  float motion = sqrt(
-    (float)gx*gy + (float)gy*gy + (float)gz*gz
-  );
+    float motion = sqrt(ax * ax + ay * ay + az * az) - 1.0f;
+    if (motion < 0.0f) {
+      motion = 0.0f;
+    }
 
-  filteredMotion = alpha*motion + (1-alpha) * filteredMotion;
+    filteredMotion = alpha * motion + (1.0f - alpha) * filteredMotion;
 
-  if(filteredMotion<300){
-    filteredMotion = 0;
+    if (filteredMotion < 0.05f) {
+      filteredMotion = 0.0f;
+    }
+
+    int strength = map((int)(filteredMotion * 1000.0f), 0, 4000, 0, 127);
+    strength = constrain(strength, 0, 127);
+    drv.setSpeed(strength);
+
+    Serial.print("AX: ");
+    Serial.print(ax);
+
+    Serial.print(" AY: ");
+    Serial.print(ay);
+
+    Serial.print(" AZ: ");
+    Serial.print(az);
+
+    Serial.print(" MOTION: ");
+    Serial.print(filteredMotion);
+
+    Serial.print(" Strength: ");
+    Serial.print(strength);
+    Serial.println();
   }
-
-  int strength = map((int)filteredMotion,
-                      0,
-                      18000,
-                      0,
-                      127);
-  
-  strength = constrain(strength, 0,127);
-  drv.setRealtimeValue(strength);
-
-  Serial.print("GX: ");
-  Serial.print(gx);
-
-  Serial.print(" GY: ");
-  Serial.print(gy);
-
-  Serial.print(" GZ: ");
-  Serial.print(gz);
-
-  Serial.print(" MOTION: ");
-  Serial.print(filteredMotion);
-
-  Serial.print(" Strength: ");
-  Serial.print(strength);
 
   delay(5);
 }
-
-
-
-
-
-
-
-
 

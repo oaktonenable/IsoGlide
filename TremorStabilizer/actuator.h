@@ -1,7 +1,7 @@
 #ifndef ACTUATOR_H
 #define ACTUATOR_H
 
-#include "Adafruit_DRV2605.h"
+#include "DRV8833.h"
 
 enum class Axis{
     PITCH,
@@ -9,14 +9,13 @@ enum class Axis{
 };
 class TremorActuator {
     public:
-        TremorActuator(Axis axis, uint8_t i2cAddress);
+        TremorActuator(Axis axis, uint8_t in1Pin, uint8_t in2Pin);
         bool begin();
         void applyCorrection(float tremorRate);
         void stop();
     private:
         Axis axis;
-        uint8_t i2cAddress;
-        Adafruit_DRV2605 driver;
+        DRV8833 driver;
         static constexpr float MAX_TREMOR_RATE = 200.0f; // Maximum tremor rate in degrees per second
 };
 

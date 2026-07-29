@@ -1,14 +1,11 @@
 #include "actuator.h"
-#include <Wire.h>
 #include <cmath>
 
-TremorActuator::TremorActuator(Axis axis, uint8_t i2cAddress)
-    : axis(axis), i2cAddress(i2cAddress){}
+TremorActuator::TremorActuator(Axis axis, uint8_t in1Pin, uint8_t in2Pin)
+    : axis(axis), driver(in1Pin, in2Pin){}
 
 bool TremorActuator::begin() {
-    if(!driver.begin()){
-        return false;
-    }
+    driver.begin();
     stop();
     return true;
 }
@@ -19,10 +16,10 @@ void TremorActuator::applyCorrection(float tremorRate){
     else if(tremorRate < -MAX_TREMOR_RATE)
         tremorRate = -MAX_TREMOR_RATE;
     float normalized = (tremorRate / MAX_TREMOR_RATE) * 127.0f;
-    int8_t rtpValue = static_cast<int8_t>(normalized);
-    driver.setRealtimeValue(rtpValue);
+    int8_t speedValue = static_cast<int8_t>(normalized);
+    driver.setSpeed(speedValue);
 }
 
 void TremorActuator::stop(){
-    driver.setRealtimeValue(0);
+    driver.stop();
 }
